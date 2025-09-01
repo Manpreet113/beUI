@@ -11,11 +11,11 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: { type: "select" },
-      options: ["default", "outline", "ghost", "link", "destructive", "secondary"],
+      options: ["solid", "subtle", "ghost"],
     },
     size: {
       control: { type: "select" },
-      options: ["sm", "lg", "icon", "default"],
+      options: ["sm", "md", "lg", "icon"],
     },
     onClick: { action: "clicked" },
   },
@@ -24,9 +24,10 @@ const meta: Meta<typeof Button> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+// Variants
 export const Solid: Story = {
   args: {
-    children: "Button",
+    children: "Solid Button",
     variant: "solid",
     size: "md",
     "aria-label": "Button",
@@ -37,6 +38,7 @@ export const Subtle: Story = {
   args: {
     children: "Subtle Button",
     variant: "subtle",
+    size: "md",
   },
 }
 
@@ -48,12 +50,28 @@ export const Ghost: Story = {
   },
 }
 
+// Sizes
+export const Small: Story = {
+  args: {
+    children: "Small Button",
+    size: "sm",
+  },
+}
+
 export const Large: Story = {
   args: {
     children: "Large Button",
     size: "lg",
   },
 }
+
+export const Icon: Story = {
+  args: {
+    size: "icon",
+    "aria-label": "Icon Button",
+  },
+}
+
 
 export const Disabled: Story = {
   args: {
@@ -62,9 +80,18 @@ export const Disabled: Story = {
   },
 }
 
-export const asChild: Story = {
-    args:{
-        asChild: true,
-        children: <div>Not button</div>,
-    }
+export const Loading: Story = {
+  args: {
+    children: "Loading Button",
+    loading: true,
+  },
+}
+
+export const AsChild: Story = {
+  args: {
+    asChild: true,
+    children: (
+      <div>Not a button</div>
+    ),
+  },
 }
