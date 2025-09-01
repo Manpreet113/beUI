@@ -61,3 +61,10 @@ export const Disabled: Story = {
     disabled: true,
   },
 }
+
+export const asChild: Story = {
+    args:{
+        asChild: true,
+        children: <div>Not button</div>,
+    }
+}

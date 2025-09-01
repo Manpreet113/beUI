@@ -1,8 +1,9 @@
-import { cn } from "@/utils/index"
-import { cva, type VariantProps } from "cva"
-import type { ComponentProps } from "react"
+import { cn } from "@/utils/index";
+import { cva, type VariantProps } from "cva";
+import type { ComponentProps } from "react";
+import { Slot } from "@radix-ui/react-slot";
 
-// Define variants
+
 const buttonVariants = cva({
   base: "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive cursor-pointer",
   variants: {
@@ -32,14 +33,17 @@ const buttonVariants = cva({
   },
 })
 
-// Merge ButtonProps with VariantProps
+
 export interface ButtonProps
   extends ComponentProps<"button">,
-    VariantProps<typeof buttonVariants> {}
+    VariantProps<typeof buttonVariants> {
+        asChild?: boolean
+    }
 
-// Component
-export const Button = ({ className, variant, size, ...props }: ButtonProps) => {
+
+export const Button = ({ className, variant, size, asChild = false, ...props }: ButtonProps) => {
+    const Comp = asChild ? Slot : "button"
   return (
-    <button className={cn(buttonVariants({ variant, size }), className)} {...props} />
+    <Comp className={cn(buttonVariants({ variant, size }), className)} {...props} />
   )
 }
