@@ -24,19 +24,19 @@ const meta: Meta<typeof Button> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
+export const Solid: Story = {
   args: {
     children: "Button",
-    variant: "default",
-    size: "default",
+    variant: "solid",
+    size: "md",
     "aria-label": "Button",
   },
 }
 
-export const Outline: Story = {
+export const Subtle: Story = {
   args: {
-    children: "Outline Button",
-    variant: "outline",
+    children: "Subtle Button",
+    variant: "subtle",
   },
 }
 
@@ -44,7 +44,7 @@ export const Ghost: Story = {
   args: {
     children: "Ghost Button",
     variant: "ghost",
-    size: "sm",
+    size: "md",
   },
 }
 
