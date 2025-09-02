@@ -40,7 +40,7 @@ npm install beui
 ## 🧱 Components (WIP)
 
 * [x] Button
-* [ ] Input
+* [x] Input
 * [ ] Card
 * [ ] Modal / Dialog
 * [ ] Navbar / Sidebar
