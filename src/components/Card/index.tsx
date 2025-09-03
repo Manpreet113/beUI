@@ -1,4 +1,5 @@
 import * as React from "react"
+
 import { cva, type VariantProps } from "cva"
 
 import { cn } from "@/utils"
@@ -116,6 +117,7 @@ const CardFooter = React.forwardRef<
 ));
 CardFooter.displayName = "CardFooter";
 
+
 export {
   Card,
   CardHeader,
@@ -124,4 +126,5 @@ export {
   CardDescription,
   CardContent,
   CardImage, 
+
 }
