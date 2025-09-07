@@ -41,8 +41,8 @@ npm install beui
 
 * [x] Button
 * [x] Input
-* [ ] Card
-* [ ] Modal / Dialog
+* [x] Card
+* [x] Modal / Dialog
 * [ ] Navbar / Sidebar
 * [ ] Toast / Alerts
 
