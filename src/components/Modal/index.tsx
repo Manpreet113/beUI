@@ -1,92 +1,148 @@
-import * as React from "react"
-import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { cva, type VariantProps } from "cva"
-import { cn } from "@/utils"
+import { cn } from "@/utils/index";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Cross2Icon } from "@radix-ui/react-icons";
+import { cva, type VariantProps } from "cva";
+import { AnimatePresence, motion } from "framer-motion";
+import * as React from "react";
 
-const Modal = DialogPrimitive.Root
-const ModalTrigger = DialogPrimitive.Trigger
+// --- Context to share the modal's open state ---
+interface ModalContextType {
+  open: boolean;
+}
+const ModalContext = React.createContext<ModalContextType | null>(null);
 
-const modalVariants = cva({
+const useModalContext = () => {
+  const context = React.useContext(ModalContext);
+  if (!context) {
+    throw new Error("useModalContext must be used within a Modal");
+  }
+  return context;
+};
+
+// --- Modal Root: Now handles both controlled and uncontrolled states ---
+const Modal = ({
+  open: controlledOpen,
+  onOpenChange: onControlledOpenChange,
+  defaultOpen,
+  ...props
+}: DialogPrimitive.DialogProps) => {
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(
+    defaultOpen || false
+  );
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
+
+  const onOpenChange = React.useCallback(
+    (isOpen: boolean) => {
+      if (!isControlled) {
+        setUncontrolledOpen(isOpen);
+      }
+      onControlledOpenChange?.(isOpen);
+    },
+    [isControlled, onControlledOpenChange]
+  );
+
+  return (
+    <ModalContext.Provider value={{ open }}>
+      <DialogPrimitive.Root
+        open={open}
+        onOpenChange={onOpenChange}
+        defaultOpen={defaultOpen}
+        {...props}
+      />
+    </ModalContext.Provider>
+  );
+};
+
+
+const ModalTrigger = DialogPrimitive.Trigger;
+
+const modalContentVariants = cva({
   base: `
-    fixed z-50 gap-4 bg-background p-6 shadow-lg 
-    border transition-all duration-200
-    data-[state=open]:animate-in 
-    data-[state=closed]:animate-out 
-    data-[state=closed]:fade-out-0 
-    data-[state=open]:fade-in-0 
-    data-[state=closed]:zoom-out-95 
-    data-[state=open]:zoom-in-95 
-    data-[state=closed]:slide-out-to-left-1/2 
-    data-[state=closed]:slide-out-to-top-[48%] 
-    data-[state=open]:slide-in-from-left-1/2 
-    data-[state=open]:slide-in-from-top-[48%] 
-    sm:rounded-lg
+    fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg 
+    translate-x-[-50%] translate-y-[-50%] gap-4 
+    border bg-background p-6 shadow-lg sm:rounded-lg
   `,
   variants: {
     variant: {
-        default: "border-border",
-        outline: "border-primary",
+      default: "border-border",
+      outline: "border-primary",
     },
   },
   defaultVariants: {
     variant: "default",
   },
-})
+});
 
-const ModalOverlay = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay
-    ref={ref}
-    className={cn(
-      `
-      fixed inset-0 z-50 bg-background/80 backdrop-blur-sm 
-      data-[state=open]:animate-in 
-      data-[state=closed]:animate-out 
-      data-[state=closed]:fade-out-0 
-      data-[state=open]:fade-in-0
-      `,
-      className
-    )}
-    {...props}
-  />
-))
-ModalOverlay.displayName = DialogPrimitive.Overlay.displayName
+export interface ModalContentProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>,
+    VariantProps<typeof modalContentVariants> {}
 
 const ModalContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> &
-    VariantProps<typeof modalVariants>
->(({ className, variant, children, ...props }, ref) => (
-  <DialogPrimitive.Portal>
-    <ModalOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(modalVariants({ variant }), className)}
-      {...props}
-    >
-      {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-        {/* You can use an SVG icon here */}
-        <span className="h-4 w-4">X</span>
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </DialogPrimitive.Portal>
-))
-ModalContent.displayName = DialogPrimitive.Content.displayName
+  ModalContentProps
+>(({ className, variant, children, ...props }, ref) => {
+  const { open } = useModalContext();
+
+  return (
+    <DialogPrimitive.Portal forceMount>
+      <AnimatePresence>
+        {open && (
+          <>
+            <DialogPrimitive.Overlay asChild>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
+              />
+            </DialogPrimitive.Overlay>
+
+            <DialogPrimitive.Content ref={ref} asChild {...props}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className={cn(modalContentVariants({ variant }), className)}
+              >
+                {children}
+                <DialogPrimitive.Close
+                  className={`
+                    absolute right-4 top-4 rounded-sm opacity-70 
+                    ring-offset-background transition-opacity 
+                    hover:opacity-100 focus:outline-none focus:ring-2 
+                    focus:ring-ring focus:ring-offset-2 
+                    disabled:pointer-events-none data-[state=open]:bg-accent 
+                    data-[state=open]:text-muted-foreground
+                  `}
+                >
+                  <Cross2Icon className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </DialogPrimitive.Close>
+              </motion.div>
+            </DialogPrimitive.Content>
+          </>
+        )}
+      </AnimatePresence>
+    </DialogPrimitive.Portal>
+  );
+});
+ModalContent.displayName = DialogPrimitive.Content.displayName;
 
 const ModalHeader = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)}
+    className={cn(
+      "flex flex-col space-y-1.5 text-center sm:text-left",
+      className
+    )}
     {...props}
   />
-)
-ModalHeader.displayName = "ModalHeader"
+);
+ModalHeader.displayName = "ModalHeader";
 
 const ModalFooter = ({
   className,
@@ -99,8 +155,8 @@ const ModalFooter = ({
     )}
     {...props}
   />
-)
-ModalFooter.displayName = "ModalFooter"
+);
+ModalFooter.displayName = "ModalFooter";
 
 const ModalTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
@@ -114,8 +170,8 @@ const ModalTitle = React.forwardRef<
     )}
     {...props}
   />
-))
-ModalTitle.displayName = DialogPrimitive.Title.displayName
+));
+ModalTitle.displayName = DialogPrimitive.Title.displayName;
 
 const ModalDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
@@ -126,8 +182,8 @@ const ModalDescription = React.forwardRef<
     className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
-))
-ModalDescription.displayName = DialogPrimitive.Description.displayName
+));
+ModalDescription.displayName = DialogPrimitive.Description.displayName;
 
 export {
   Modal,
@@ -137,4 +193,4 @@ export {
   ModalFooter,
   ModalTitle,
   ModalDescription,
-}
+};

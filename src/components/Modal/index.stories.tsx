@@ -26,7 +26,7 @@ type Story = StoryObj<typeof meta>;
 
 // --- Base Example ---
 
-export const FullExample: Story = {
+export const Default: Story = {
   name: "Recipe: Full Example",
   render: () => (
     <Modal>
@@ -77,6 +77,33 @@ export const OutlineVariant: Story = {
   ),
 };
 
+export const Destructive: Story = {
+  name: "Recipe: Destructive Action",
+  render: () => (
+    <Modal>
+      <ModalTrigger asChild>
+        <Button variant="solid" className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete Account</Button>
+      </ModalTrigger>
+      <ModalContent className="sm:max-w-sm">
+        <ModalHeader>
+          <ModalTitle>Are you sure?</ModalTitle>
+          <ModalDescription>
+            This action cannot be undone. This will permanently delete your account and remove your data from our servers.
+          </ModalDescription>
+        </ModalHeader>
+        <ModalFooter>
+          <Button variant="outline">
+            Cancel
+          </Button>
+          <Button variant="solid" className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            Yes, delete account
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  ),
+}
+
 // --- Edge Cases ---
 
 export const ScrollingContent: Story = {
@@ -92,13 +119,20 @@ export const ScrollingContent: Story = {
         </ModalHeader>
         <div className="prose max-h-[60vh] overflow-y-auto p-4">
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. ... [add a
-            lot more text here to demonstrate scrolling] ... Vestibulum ante
-            ipsum primis in faucibus orci luctus et ultrices posuere cubilia
-            curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper
-            sit amet ligula.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. ... and so on.
+            You should place a lot more text here to demonstrate scrolling.
+            For the purpose of this example, we'll repeat this paragraph multiple times.
           </p>
-          {/* Repeat the <p> tag many times */}
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. ... and so on.
+            You should place a lot more text here to demonstrate scrolling.
+            For the purpose of this example, we'll repeat this paragraph multiple times.
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. ... and so on.
+            You should place a lot more text here to demonstrate scrolling.
+            For the purpose of this example, we'll repeat this paragraph multiple times.
+          </p>
         </div>
         <ModalFooter>
           <Button>Accept</Button>
