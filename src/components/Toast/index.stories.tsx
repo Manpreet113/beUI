@@ -1,73 +1,65 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button } from "../Button";
 import { Toaster } from "../Toaster";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "./";
 
-const meta: Meta<typeof Toaster> = {
+const meta: Meta = {
   title: "Components/Toast",
   component: Toaster,
   parameters: {
     layout: "centered",
   },
   tags: ["autodocs"],
+  argTypes: {
+    variant: {
+      control: { type: "select" },
+      options: ["default", "destructive"],
+      defaultValue: "default",
+    },
+    title: {
+      control: { type: "text" },
+      defaultValue: "Event Scheduled",
+    },
+    description: {
+      control: { type: "text" },
+      defaultValue: "A new event has been added to your calendar.",
+    },
+    duration: {
+      control: { type: "number" },
+      defaultValue: 5000,
+    },
+  },
 };
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// The story render functions remain the same but will now work
-export const Default: Story = {
-  name: "Recipe: Simple Toast",
-  render: () => (
-    <Button
-      variant="outline"
-      onClick={() => {
-        toast({
-          title: "Event Scheduled",
-          description: "A new event has been added to your calendar.",
-        });
-      }}
-    >
-      Show Toast
-    </Button>
-  ),
-};
+// --- Interactive Story ---
 
-export const WithAction: Story = {
-  name: "Recipe: With Action",
-  render: () => (
-    <Button
-      variant="outline"
-      onClick={() => {
-        toast({
-          title: "Message Sent",
-          description: "Your message has been successfully sent.",
-          action: <ToastAction altText="Undo">Undo</ToastAction>,
-        });
-      }}
-    >
-      Show Toast with Action
-    </Button>
-  ),
-};
+export const Interactive: Story = {
+  name: "Interactive Demo",
+  render: (args) => {
+    const { toast } = useToast();
 
-export const Destructive: Story = {
-  name: "Variant: Destructive",
-  render: () => (
-    <Button
-      variant="outline"
-      onClick={() => {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: "There was a problem with your request.",
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
-        });
-      }}
-    >
-      Show Destructive Toast
-    </Button>
-  ),
+    return (
+      <Button
+        variant="outline"
+        onClick={() => {
+          toast({
+            variant: args.variant,
+            title: args.title,
+            description: args.description,
+            action: <ToastAction altText="Undo">Undo</ToastAction>,
+            options: {
+              duration: args.duration,
+            },
+          });
+        }}
+      >
+        Show Toast
+      </Button>
+    );
+  },
 };

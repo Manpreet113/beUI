@@ -1,6 +1,7 @@
 import type { Preview } from "@storybook/react-vite";
 import React from "react";
 import { Toaster } from "../src/components/Toaster";
+import { ToastProvider } from "../src/hooks/use-toast";
 import "../src/index.css";
 
 const preview: Preview = {
@@ -15,8 +16,10 @@ const preview: Preview = {
   decorators: [
     (Story) => (
       <>
+      <ToastProvider>
         <Story />
         <Toaster />
+      </ToastProvider>
       </>
     ),
   ],
