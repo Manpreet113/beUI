@@ -10,6 +10,7 @@ type ToasterToast = ToastProps & {
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastActionElement;
+  status?: "success" | "info" | "warning" | "error";
 };
 
 interface ToastOptions {
