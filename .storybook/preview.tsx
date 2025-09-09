@@ -14,14 +14,16 @@ const preview: Preview = {
     },
   },
   decorators: [
-    (Story) => (
-      <>
-      <ToastProvider>
-        <Story />
-        <Toaster />
-      </ToastProvider>
-      </>
-    ),
+    (Story, context) => {
+      const { variant, position } = context.args;
+
+      return (
+        <ToastProvider>
+          <Story />
+          <Toaster variant={variant} position={position} />
+        </ToastProvider>
+      );
+    },
   ],
 };
 
