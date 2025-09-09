@@ -30,8 +30,12 @@ const meta: Meta<StoryArgs> = {
     position: {
       control: { type: "select" },
       options: [
-        "top-left", "top-right", "bottom-left", "bottom-right",
-        "top-center", "bottom-center",
+        "top-left",
+        "top-right",
+        "bottom-left",
+        "bottom-right",
+        "top-center",
+        "bottom-center",
       ],
       description: "Controls where the toasts appear on the screen.",
     },
@@ -74,12 +78,40 @@ export const Interactive: Story = {
     duration: 5000,
   },
   render: (args) => {
-    const { toast } = useToast();
+    const { toast, promise } = useToast();
+
+    const handlePromise = () => {
+      const myPromise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (Math.random() > 0.5) {
+            resolve({ name: "John Doe" });
+          } else {
+            reject({ name: "John Doe" });
+          }
+        }, 2000);
+      });
+
+      promise(myPromise, {
+        loading: {
+          title: "Loading...",
+          description: "Please wait while we process your request.",
+        },
+        success: {
+          title: "Success!",
+          description: "Your request has been processed successfully.",
+        },
+        error: {
+          title: "Error!",
+          description: "There was an error processing your request.",
+        },
+      });
+    };
 
     return (
       <div className="flex flex-col items-center gap-4">
-        <p className="text-sm text-muted-foreground max-w-sm text-center">
-          NOTE: The `Toaster` is rendered globally. Adjust `variant` and `position` controls to see layout changes for all toasts.
+        <p className="max-w-sm text-center text-sm text-muted-foreground">
+          NOTE: The `Toaster` is rendered globally. Adjust `variant` and
+          `position` controls to see layout changes for all toasts.
         </p>
         <Button
           variant="outline"
@@ -97,6 +129,9 @@ export const Interactive: Story = {
           }}
         >
           Show Toast
+        </Button>
+        <Button variant="outline" onClick={handlePromise}>
+          Show Promise Toast
         </Button>
       </div>
     );

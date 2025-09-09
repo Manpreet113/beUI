@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useReducer, type ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  type ReactNode,
+} from "react";
 import type { ToastActionElement, ToastProps } from "@/components/Toast";
 
 const TOAST_LIMIT = 5;
@@ -24,12 +29,14 @@ interface ToastPayload extends Omit<ToasterToast, "id"> {
 // --- Actions ---
 const actions = {
   ADD_TOAST: "ADD_TOAST",
+  UPDATE_TOAST: "UPDATE_TOAST",
   DISMISS_TOAST: "DISMISS_TOAST",
   REMOVE_TOAST: "REMOVE_TOAST",
 } as const;
 
 type Action =
   | { type: "ADD_TOAST"; toast: ToasterToast }
+  | { type: "UPDATE_TOAST"; toast: Partial<ToasterToast> }
   | { type: "DISMISS_TOAST"; toastId?: string }
   | { type: "REMOVE_TOAST"; toastId?: string };
 
@@ -49,6 +56,13 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
+      };
+    case actions.UPDATE_TOAST:
+      return {
+        ...state,
+        toasts: state.toasts.map((t) =>
+          t.id === action.toast.id ? { ...t, ...action.toast } : t
+        ),
       };
     case actions.DISMISS_TOAST:
       return {
@@ -75,6 +89,26 @@ interface ToastContextType {
   dispatch: React.Dispatch<Action>;
   toast: (payload: ToastPayload) => { id: string; dismiss: () => void };
   dismiss: (toastId?: string) => void;
+  success: (
+    payload: Omit<ToastPayload, "status">
+  ) => { id: string; dismiss: () => void };
+  error: (
+    payload: Omit<ToastPayload, "status">
+  ) => { id: string; dismiss: () => void };
+  info: (
+    payload: Omit<ToastPayload, "status">
+  ) => { id: string; dismiss: () => void };
+  warning: (
+    payload: Omit<ToastPayload, "status">
+  ) => { id: string; dismiss: () => void };
+  promise: <T>(
+    promise: Promise<T>,
+    options: {
+      loading: Omit<ToastPayload, "status">;
+      success: Omit<ToastPayload, "status">;
+      error: Omit<ToastPayload, "status">;
+    }
+  ) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -119,8 +153,61 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: actions.DISMISS_TOAST, toastId });
   };
 
+  const success = (payload: Omit<ToastPayload, "status">) => {
+    return toast({ ...payload, status: "success" });
+  };
+
+  const error = (payload: Omit<ToastPayload, "status">) => {
+    return toast({ ...payload, status: "error" });
+  };
+
+  const info = (payload: Omit<ToastPayload, "status">) => {
+    return toast({ ...payload, status: "info" });
+  };
+
+  const warning = (payload: Omit<ToastPayload, "status">) => {
+    return toast({ ...payload, status: "warning" });
+  };
+
+  const promise = <T,>(
+    promise: Promise<T>,
+    options: {
+      loading: Omit<ToastPayload, "status">;
+      success: Omit<ToastPayload, "status">;
+      error: Omit<ToastPayload, "status">;
+    }
+  ) => {
+    const { id } = toast({ ...options.loading, status: "info" });
+
+    promise
+      .then(() => {
+        dispatch({
+          type: actions.UPDATE_TOAST,
+          toast: { id, ...options.success, status: "success" },
+        });
+      })
+      .catch(() => {
+        dispatch({
+          type: actions.UPDATE_TOAST,
+          toast: { id, ...options.error, status: "error" },
+        });
+      });
+  };
+
   return (
-    <ToastContext.Provider value={{ state, dispatch, toast, dismiss }}>
+    <ToastContext.Provider
+      value={{
+        state,
+        dispatch,
+        toast,
+        dismiss,
+        success,
+        error,
+        info,
+        warning,
+        promise,
+      }}
+    >
       {children}
     </ToastContext.Provider>
   );
@@ -136,5 +223,10 @@ export const useToast = () => {
     toasts: context.state.toasts,
     toast: context.toast,
     dismiss: context.dismiss,
+    success: context.success,
+    error: context.error,
+    info: context.info,
+    warning: context.warning,
+    promise: context.promise,
   };
 };
