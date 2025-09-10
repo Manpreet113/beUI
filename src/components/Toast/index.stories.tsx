@@ -1,3 +1,4 @@
+// src/components/Toast.stories.tsx
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button } from "../Button/index";
 import { Toaster } from "./index";
@@ -37,13 +38,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     position: "bottom-right",
-    richColors: false,
+    richColors: true, // Let's enable rich colors by default
     expand: false,
   },
   render: (args) => (
     <>
       <Toaster {...args} />
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-4">
         <Button
           onClick={() =>
             toast("Event has been created", {
@@ -55,7 +56,17 @@ export const Default: Story = {
             })
           }
         >
-          Show Toast
+          Default
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            toast.info("Info", {
+              description: "This is an informational message.",
+            })
+          }
+        >
+          Info
         </Button>
         <Button
           variant="outline"
@@ -65,7 +76,17 @@ export const Default: Story = {
             })
           }
         >
-          Show Success
+          Success
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            toast.warning("Warning!", {
+              description: "Something you should be aware of.",
+            })
+          }
+        >
+          Warning
         </Button>
         <Button
           variant="outline"
@@ -75,7 +96,7 @@ export const Default: Story = {
             })
           }
         >
-          Show Error
+          Error
         </Button>
         <Button
           variant="outline"
@@ -96,7 +117,7 @@ export const Default: Story = {
             });
           }}
         >
-          Show Promise Toast
+          Promise
         </Button>
       </div>
     </>
