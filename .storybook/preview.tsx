@@ -1,7 +1,5 @@
 import type { Preview } from "@storybook/react-vite";
 import React from "react";
-import { Toaster } from "../src/components/Toaster";
-import { ToastProvider } from "../src/hooks/use-toast";
 import "../src/index.css";
 
 const preview: Preview = {
@@ -13,17 +11,13 @@ const preview: Preview = {
       },
     },
   },
+  
   decorators: [
-    (Story, context) => {
-      const { variant, position } = context.args;
-
-      return (
-        <ToastProvider>
-          <Story />
-          <Toaster variant={variant} position={position} />
-        </ToastProvider>
-      );
-    },
+    (Story) => (
+      <div>
+        <Story />
+      </div>
+    ),
   ],
 };
 
