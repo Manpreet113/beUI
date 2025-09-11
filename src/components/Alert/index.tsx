@@ -1,49 +1,92 @@
 import { cn } from "@/utils/index";
 import {
+  CheckCircledIcon,
   Cross2Icon,
+  CrossCircledIcon,
   ExclamationTriangleIcon,
   InfoCircledIcon,
 } from "@radix-ui/react-icons";
 import { cva, type VariantProps } from "cva";
+import { motion, type HTMLMotionProps } from "framer-motion";
 import * as React from "react";
 import { Button } from "../Button";
 
 const alertVariants = cva({
-  base: "relative w-full rounded-xl border p-4 [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7",
+  base: "relative w-full rounded-xl border p-4 [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg~*]:pl-7",
   variants: {
     variant: {
-      default: "bg-background text-foreground border-border",
+      default: "border-border text-foreground [&>svg]:text-foreground",
+      success: "border-success text-success-foreground [&>svg]:text-success",
+      warning: "border-warning text-warning-foreground [&>svg]:text-warning",
       destructive:
-        "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
+        "border-destructive text-destructive [&>svg]:text-destructive",
+    },
+    richColors: {
+      true: "",
     },
   },
+  compoundVariants: [
+    {
+      variant: "default",
+      richColors: true,
+      className: "bg-muted border-muted-foreground/30",
+    },
+    {
+      variant: "success",
+      richColors: true,
+      className: "bg-success/20",
+    },
+    {
+      variant: "warning",
+      richColors: true,
+      className: "bg-warning/20",
+    },
+    {
+      variant: "destructive",
+      richColors: true,
+      className: "bg-destructive/20",
+    },
+  ],
   defaultVariants: {
     variant: "default",
   },
 });
 
+const variantIcons = {
+  default: InfoCircledIcon,
+  success: CheckCircledIcon,
+  warning: ExclamationTriangleIcon,
+  destructive: CrossCircledIcon,
+};
+
+
 export interface AlertProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  // 2. Replace React.HTMLAttributes with Omit<HTMLMotionProps<'div'>, 'ref'>
+  extends Omit<HTMLMotionProps<"div">, "ref">,
     VariantProps<typeof alertVariants> {
   isDismissible?: boolean;
 }
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
-  ({ className, variant, children, isDismissible = false, ...props }, ref) => {
+  ({ className, variant, richColors, children, isDismissible = false, ...props }, ref) => {
+    // ... (rest of the component is unchanged)
     const [isVisible, setIsVisible] = React.useState(true);
 
     if (!isVisible) {
       return null;
     }
 
-    const Icon =
-      variant === "destructive" ? ExclamationTriangleIcon : InfoCircledIcon;
+    const Icon = variant ? variantIcons[variant] : variantIcons.default;
 
     return (
-      <div
+      <motion.div
         ref={ref}
         role="alert"
-        className={cn(alertVariants({ variant }), className)}
+        className={cn(alertVariants({ variant, richColors }), className)}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        transition={{ duration: 0.2 }}
         {...props}
       >
         <Icon className="h-4 w-4" />
@@ -52,14 +95,14 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-2 top-2 h-6 w-6"
+            className="absolute right-5 top-2 h-6 w-6"
             onClick={() => setIsVisible(false)}
             aria-label="Dismiss"
           >
             <Cross2Icon className="h-4 w-4" />
           </Button>
         )}
-      </div>
+      </motion.div>
     );
   }
 );
@@ -78,8 +121,8 @@ const AlertTitle = React.forwardRef<
 AlertTitle.displayName = "AlertTitle";
 
 const AlertDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
