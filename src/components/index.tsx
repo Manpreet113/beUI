@@ -4,5 +4,4 @@ export * from './Input';
 export * from './Input/validatedInputs';
 export * from './Modal';
 export * from './Toast';
-export * from './Toaster';
-
+export * from './Alert';
